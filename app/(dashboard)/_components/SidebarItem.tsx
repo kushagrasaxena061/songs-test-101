@@ -1,45 +1,52 @@
-import Link from "next/link";
-import { IconType } from "react-icons";
-import { twMerge } from "tailwind-merge";
+"use client";
+
+import { LucideIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+
+import { cn } from "@/lib/utils";
 
 interface SidebarItemProps {
-  icon: IconType;
+  icon: LucideIcon;
   label: string;
-  active?: boolean;
   href: string;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({
-  icon: Icon,
-  label,
-  active,
-  href,
-}) => {
+export const SidebarItem = ({ icon: Icon, label, href }: SidebarItemProps) => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const isActive =
+    (pathname === "/home" && href === "/home") ||
+    pathname === href ||
+    pathname?.startsWith(`/home/${href}/`);
+
+  const onClick = () => {
+    router.push(href);
+  };
+
   return (
-    <Link
-      href={href}
-      className={twMerge(
-        `
-        flex 
-        flex-row 
-        h-auto 
-        items-center 
-        w-full 
-        gap-x-4 
-        text-md 
-        font-medium
-        cursor-pointer
-        hover:text-white
-        transition
-        text-neutral-400
-        py-1`,
-        active && "text-white"
+    <button
+      onClick={onClick}
+      type="button"
+      className={cn(
+        "flex items-center gap-x-2 text-slate-500 text-sm font-[500] pl-6 transition-all hover:text-slate-600 hover:bg-slate-300/20",
+        isActive &&
+          "text-sky-700 bg-sky-200/20 hover:bg-sky-200/20 hover:text-sky-700"
       )}
     >
-      <Icon size={26} />
-      <p className="truncate w-100">{label}</p>
-    </Link>
+      <div className="flex text-white items-center gap-x-2 py-4">
+        <Icon
+          size={22}
+          className={cn("text-white", isActive && "text-red-100")}
+        />
+        {label}
+      </div>
+      <div
+        className={cn(
+          "ml-auto opacity-0 border-2 border-sky-700 h-full transition-all",
+          isActive && "opacity-100"
+        )}
+      />
+    </button>
   );
 };
-
-export default SidebarItem;
